@@ -1,5 +1,6 @@
 import argparse
 import os
+import joblib
 
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -29,9 +30,19 @@ def main():
         stratify=y
     )
 
+    # Outputs directory at project root
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    out_dir = os.path.join(project_root, "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+
     # Train Decision Tree
     model = DecisionTreeClassifier(random_state=args.random_state)
     model.fit(X_train, y_train)
+
+    # Save trained model
+    model_path = os.path.join(out_dir, "model.joblib")
+    joblib.dump(model, model_path)
+    print(f"Saved model to: {model_path}")
 
     # Evaluate
     y_pred = model.predict(X_test)
@@ -39,11 +50,6 @@ def main():
 
     print(f"Model trained with test_size={args.test_size}, random_state={args.random_state}")
     print(f"Accuracy: {acc:.4f}")
-
-    # Ensure outputs directory exists at project root
-    project_root = os.path.dirname(os.path.dirname(__file__))
-    out_dir = os.path.join(project_root, "outputs")
-    os.makedirs(out_dir, exist_ok=True)
 
     # Confusion matrix
     cm = confusion_matrix(y_test, y_pred)
